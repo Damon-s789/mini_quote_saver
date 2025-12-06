@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Quote Saver</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 650px;
+      margin: 50px auto;
+      background: #f7f9fc;
+      color: #2d3748;
+      line-height: 1.6;
+    }
+    .container {
+      background: white;
+      padding: 35px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #4a5568;
+    }
+    .input-area {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 25px;
+    }
+    input {
+      flex: 1;
+      padding: 14px 16px;
+      font-size: 17px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      outline: none;
+    }
+    input:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102,126,234,0.15);
+    }
+    button {
+      padding: 14px 24px;
+      font-size: 16px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #5a67d8;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    li {
+      background: #f8f9ff;
+      padding: 16px 20px;
+      margin-bottom: 12px;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 18px;
+      border-left: 5px solid #667eea;
+    }
+    li span {
+      flex: 1;
+      word-break: break-word;
+    }
+    .delete {
+      background: #fc8181;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .delete:hover {
+      background: #f56565;
+    }
+    .empty {
+      text-align: center;
+      color: #a0aec0;
+      font-style: italic;
+      margin-top: 30px;
+      font-size: 17px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Mini Quote Saver</h1>
+
+    <div class="input-area">
+      <input type="text" id="newQuote" placeholder="Type a meaningful quote here..." autocomplete="off">
+      <button id="addBtn">Add Quote</button>
+    </div>
+
+    <ul id="list"></ul>
+    <p class="empty" id="emptyMsg">No quotes yet — add your first one above!</p>
+  </div>
+
+  <script>
+    const input = document.getElementById('newQuote');
+    const addBtn = document.getElementById('addBtn');
+    const list = document.getElementById('list');
+    const emptyMsg = document.getElementById('emptyMsg');
+
+    let quotes = JSON.parse(localStorage.getItem('myQuotes') || '[]');
+
+    function saveToStorage() {
+      localStorage.setItem('myQuotes', JSON.stringify(quotes));
+    }
+
+    function render() {
+      list.innerHTML = '';
+
+      if (quotes.length === 0) {
+        emptyMsg.style.display = 'block';
+        return;
+      }
+      emptyMsg.style.display = 'none';
+
+      quotes.forEach((quote, i) => {
+        const li = document.createElement('li');
+
+        const text = document.createElement('span');
+        text.textContent = `"${quote}"`;
+
+        const del = document.createElement('button');
+        del.textContent = 'Delete';
+        del.className = 'delete';
+        del.onclick = () => {
+          quotes.splice(i, 1);
+          saveToStorage();
+          render();
+        };
+
+        li.appendChild(text);
+        li.appendChild(del);
+        list.appendChild(li);
+      });
+    }
+
+    function addQuote() {
+      const value = input.value.trim();
+      if (!value) {
+        alert('Hey, you forgot to write the quote!');
+        return;
+      }
+
+      quotes.push(value);
+      saveToStorage();
+      render();
+
+      input.value = '';
+      input.focus();
+    }
+
+    addBtn.addEventListener('click', addQuote);
+
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') addQuote();
+    });
+
+    render();
+  </script>
+</body>
+</html>
